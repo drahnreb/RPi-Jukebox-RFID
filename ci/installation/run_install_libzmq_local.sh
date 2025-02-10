@@ -14,8 +14,8 @@ LOCAL_INSTALL_SCRIPT_PATH="${LOCAL_INSTALL_SCRIPT_PATH%/}"
 export BUILD_LIBZMQ_WITH_DRAFTS_ON_DEVICE=true
 # Run installation (in interactive mode)
 # y - start setup
-# n - use static ip
 # n - deactivate ipv6
+# n - use static ip
 # n - setup autohotspot
 # - -   change default configuration (only with autohotspot = y)
 # n - deactivate bluetooth

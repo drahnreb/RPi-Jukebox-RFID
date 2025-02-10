@@ -14,8 +14,8 @@ LOCAL_INSTALL_SCRIPT_PATH="${LOCAL_INSTALL_SCRIPT_PATH%/}"
 export ENABLE_WEBAPP_PROD_DOWNLOAD=true
 # Run installation (in interactive mode)
 # y - start setup
-# n - use static ip
 # n - deactivate ipv6
+# n - use static ip
 # y - setup autohotspot
 # n -   change default configuration
 # n - deactivate bluetooth

@@ -14,8 +14,8 @@ LOCAL_INSTALL_SCRIPT_PATH="${LOCAL_INSTALL_SCRIPT_PATH%/}"
 
 # Run installation (in interactive mode)
 # y - start setup
-# y - use static ip
 # y - deactivate ipv6
+# y - use static ip
 # n - setup autohotspot
 # - -   change default configuration (only with autohotspot = y)
 # y - deactivate bluetooth
