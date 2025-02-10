@@ -57,7 +57,7 @@ After=network.target
 
 [Service]
 Type=oneshot
-ExecStart=${iw_command} dev ${interface_name} set power_save off
+ExecStart=/bin/sh -c "${iw_command} dev ${interface_name} set power_save off"
 
 [Install]
 WantedBy=multi-user.target
@@ -91,7 +91,7 @@ set_distro_config() {
       log "Running Raspberry Pi OS/Raspbian (Legacy) specific commands ..."
       run_with_log_frame _run_set_raspi_config "Set default raspi-config"
     elif [[ "$LINUX_DISTRO" == "DietPi" ]] || [[ "$LINUX_DISTRO" == "Armbian" ]]; then
-      run_with_log_frame _run_set_distro_config "Set default distro config"
+      run_with_log_frame _run_set_distro_config "Set default distro-config"
     else
       log "Distro not supported. Skipping distro specific configuration."
     fi

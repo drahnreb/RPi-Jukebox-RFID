@@ -3,8 +3,8 @@ install() {
   customize_options
   clear_c
   show_slow_hardware_message
-  set_ssh_qos
   set_distro_config
+  set_ssh_qos
   update_distro
   init_git_repo_from_tardir
   setup_jukebox_core

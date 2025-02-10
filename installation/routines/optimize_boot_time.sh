@@ -47,7 +47,6 @@ _optimize_disable_irrelevant_services() {
     for service in "${services_to_disable[@]}"; do
         disable_service "$service"
     done
-
 }
 
 _add_options_to_cmdline() {
