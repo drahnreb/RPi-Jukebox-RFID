@@ -14,30 +14,31 @@ LOCAL_INSTALL_SCRIPT_PATH="${LOCAL_INSTALL_SCRIPT_PATH%/}"
 export ENABLE_WEBAPP_PROD_DOWNLOAD=true
 # Run installation (in interactive mode)
 # y - start setup
-# n - deactivate ipv6
+# y - deactivate ipv6
 # n - use static ip
 # y - setup autohotspot
 # n -   change default configuration
 # n - deactivate bluetooth
 # n - disable on-chip audio
 # - - mpd overwrite config (only with existing installation)
-# n - setup rfid reader
+# y - setup rfid reader
 # y - setup samba
 # y - setup webapp
-# - - build webapp (skipped due to forced webapp Download)
-# n - setup kiosk mode
+# n - build webapp (skipped due to forced webapp Download)
+# y - setup kiosk mode
 # n - reboot
 
 "${LOCAL_INSTALL_SCRIPT_PATH}/install-jukebox.sh" <<< 'y
-n
+y
 n
 y
 n
 n
 n
-n
 y
 y
+y
 n
+y
 n
 '
