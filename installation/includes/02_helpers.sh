@@ -116,11 +116,9 @@ get_distro() {
     
     # Check for different ARM-based distributions - most specific checks first
     if [ -f /etc/os-release ]; then
-        if grep -qi "raspbian\|raspberry pi os" /etc/os-release; then
-            distro="Raspberry Pi OS"
-            if [ "$check_config_scripts" = true ] && ! command -v raspi-config >/dev/null 2>&1; then
-                echo "Warning: raspi-config not found, might not be a complete Raspberry Pi OS installation"
-            fi
+        # derivatives
+        if [ -f /etc/rpi-issue ]; then # Older Raspbian systems
+            distro="Raspbian (Legacy)"
         elif [ -f /boot/dietpi/.version ]; then
             distro="DietPi"
             if [ "$check_config_scripts" = true ] && ! command -v dietpi-config >/dev/null 2>&1; then
@@ -131,14 +129,16 @@ get_distro() {
             if [ "$check_config_scripts" = true ] && ! command -v armbian-config >/dev/null 2>&1; then
                 echo "Warning: armbian-config not found, might not be a complete Armbian installation"
             fi
+        elif grep -qi "raspbian\|raspberry pi os" /etc/os-release; then
+            distro="Raspberry Pi OS"
+            if [ "$check_config_scripts" = true ] && ! command -v raspi-config >/dev/null 2>&1; then
+                echo "Warning: raspi-config not found, might not be a complete Raspberry Pi OS installation"
+            fi
+        # bases
         elif grep -qi "debian" /etc/os-release; then
             distro="Debian"
-        fi
         elif grep -qi "ubuntu" /etc/os-release; then
             distro="Ubuntu"
-        fi
-    elif [ -f /etc/rpi-issue ]; then # Older Raspbian systems
-        distro="Raspbian (Legacy)"
     fi
 
     # Default if no match is found
