@@ -113,32 +113,34 @@ get_sbc_platform() {
 get_distro() {
     local distro=""
     local check_config_scripts=${1:-false}  # Parameter to control additional script checks, defaults to false
-    
+
     # Check for different ARM-based distributions - most specific checks first
-    if [ -f /etc/os-release ]; then
-        # derivatives
-        if [ -f /etc/rpi-issue ]; then # Older Raspbian systems
-            distro="Raspbian (Legacy)"
-        elif [ -f /boot/dietpi/.version ]; then
-            distro="DietPi"
-            if [ "$check_config_scripts" = true ] && ! command -v dietpi-config >/dev/null 2>&1; then
-                echo "Warning: dietpi-config not found, might not be a complete DietPi installation"
-            fi
-        elif [ -f /etc/armbian-release ]; then
-            distro="Armbian"
-            if [ "$check_config_scripts" = true ] && ! command -v armbian-config >/dev/null 2>&1; then
-                echo "Warning: armbian-config not found, might not be a complete Armbian installation"
-            fi
-        elif grep -qi "raspbian\|raspberry pi os" /etc/os-release; then
+
+    # Check for specific derivative files first
+    if [ -f /etc/rpi-issue ]; then # Older Raspbian systems (very specific)
+        distro="Raspbian (Legacy)"
+    elif [ -f /boot/dietpi/.version ]; then # DietPi (specific file)
+        distro="DietPi"
+        if [ "$check_config_scripts" = true ] && ! command -v dietpi-config >/dev/null 2>&1; then
+            echo "Warning: dietpi-config not found, might not be a complete DietPi installation"
+        fi
+    elif [ -f /etc/armbian-release ]; then # Armbian (specific file)
+        distro="Armbian"
+        if [ "$check_config_scripts" = true ] && ! command -v armbian-config >/dev/null 2>&1; then
+            echo "Warning: armbian-config not found, might not be a complete Armbian installation"
+        fi
+    # Now check /etc/os-release for derivatives and bases (if no specific file matched)
+    elif [ -f /etc/os-release ]; then
+        if grep -qi "raspbian\|raspberry pi os" /etc/os-release; then # Raspberry Pi OS (and newer Raspbian)
             distro="Raspberry Pi OS"
             if [ "$check_config_scripts" = true ] && ! command -v raspi-config >/dev/null 2>&1; then
                 echo "Warning: raspi-config not found, might not be a complete Raspberry Pi OS installation"
             fi
-        # bases
-        elif grep -qi "debian" /etc/os-release; then
+        elif grep -qi "debian" /etc/os-release; then # Debian (base)
             distro="Debian"
-        elif grep -qi "ubuntu" /etc/os-release; then
+        elif grep -qi "ubuntu" /etc/os-release; then # Ubuntu (base)
             distro="Ubuntu"
+        fi
     fi
 
     # Default if no match is found
