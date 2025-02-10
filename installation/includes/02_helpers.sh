@@ -152,7 +152,7 @@ is_debian_based() {
     #local os_release_id=$( . /etc/os-release; printf '%s\n' "$ID"; )
     #if [[ "$os_release_id" == *"raspbian"* ]] || [[ "$os_release_id" == *"debian"* ]]; then
     local detected_distro=$(get_distro)
-    if [[ "$detected_distro" == "Raspberry Pi OS" ]] || [[ "$detected_distro" == "Raspbian (Legacy)" ]] || [[ "$detected_distro" == "Debian" ]] || [[ "$detected_distro" == "DietPi" ]]
+    if [[ "$detected_distro" == "Raspberry Pi OS" ]] || [[ "$detected_distro" == "Raspbian (Legacy)" ]] || [[ "$detected_distro" == "Debian" ]] || [[ "$detected_distro" == "DietPi" ]]; then
         # TODO add armbian based on debian
         echo true
     else
