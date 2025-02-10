@@ -75,9 +75,85 @@ get_architecture() {
     echo $arch
 }
 
+get_sbc_platform() {
+    local sbc_platform=""
+
+    # Check for Radxa (more specific checks first for accuracy)
+    if [ -f /proc/device-tree/model ] && grep -qi "radxa" /proc/device-tree/model; then
+        sbc_platform="Radxa"
+    elif [ -f /sys/firmware/devicetree/base/model ] && grep -qi "radxa" /sys/firmware/devicetree/base/model; then  # Newer systems
+        sbc_platform="Radxa"
+    elif [ -f /etc/radxa-release ]; then # Radxa-specific release file
+        sbc_platform="Radxa"
+
+    # Check for Raspberry Pi (various methods for robustness)
+    elif [ -f /proc/device-tree/model ] && grep -qi "raspberry" /proc/device-tree/model; then
+        sbc_platform="Raspberry Pi"
+    elif [ -f /sys/firmware/devicetree/base/model ] && grep -qi "raspberry" /sys/firmware/devicetree/base/model; then # Newer systems
+        sbc_platform="Raspberry Pi"
+    elif [ -f /etc/os-release ] && grep -qi "raspbian" /etc/os-release; then # Raspbian-specific string
+        sbc_platform="Raspberry Pi"
+    elif [ -f /etc/rpi-issue ]; then # Older Raspberry Pi systems
+        sbc_platform="Raspberry Pi"
+
+    # Add checks for other SBCs here (e.g., Odroid, Banana Pi, etc.)
+    # Example for Odroid:
+    # elif [ -f /proc/device-tree/model ] && grep -qi "odroid" /proc/device-tree/model; then
+    #   sbc_platform="Odroid"
+
+    # Default if no match is found
+    if [ -z "$sbc_platform" ]; then
+        sbc_platform="Unknown"
+    fi
+
+    echo "$sbc_platform"
+}
+
+get_distro() {
+    local distro=""
+    local check_config_scripts=${1:-false}  # Parameter to control additional script checks, defaults to false
+    
+    # Check for different ARM-based distributions - most specific checks first
+    if [ -f /etc/os-release ]; then
+        if grep -qi "raspbian\|raspberry pi os" /etc/os-release; then
+            distro="Raspberry Pi OS"
+            if [ "$check_config_scripts" = true ] && ! command -v raspi-config >/dev/null 2>&1; then
+                echo "Warning: raspi-config not found, might not be a complete Raspberry Pi OS installation"
+            fi
+        elif [ -f /boot/dietpi/.version ]; then
+            distro="DietPi"
+            if [ "$check_config_scripts" = true ] && ! command -v dietpi-config >/dev/null 2>&1; then
+                echo "Warning: dietpi-config not found, might not be a complete DietPi installation"
+            fi
+        elif [ -f /etc/armbian-release ]; then
+            distro="Armbian"
+            if [ "$check_config_scripts" = true ] && ! command -v armbian-config >/dev/null 2>&1; then
+                echo "Warning: armbian-config not found, might not be a complete Armbian installation"
+            fi
+        elif grep -qi "debian" /etc/os-release; then
+            distro="Debian"
+        fi
+        elif grep -qi "ubuntu" /etc/os-release; then
+            distro="Ubuntu"
+        fi
+    elif [ -f /etc/rpi-issue ]; then # Older Raspbian systems
+        distro="Raspbian (Legacy)"
+    fi
+
+    # Default if no match is found
+    if [ -z "$distro" ]; then
+        distro="Unsupported"
+    fi
+
+    echo "$distro"
+}
+
 is_debian_based() {
-    local os_release_id=$( . /etc/os-release; printf '%s\n' "$ID"; )
-    if [[ "$os_release_id" == *"raspbian"* ]] || [[ "$os_release_id" == *"debian"* ]]; then
+    #local os_release_id=$( . /etc/os-release; printf '%s\n' "$ID"; )
+    #if [[ "$os_release_id" == *"raspbian"* ]] || [[ "$os_release_id" == *"debian"* ]]; then
+    local detected_distro=$(get_distro)
+    if [[ "$detected_distro" == "Raspberry Pi OS" ]] || [[ "$detected_distro" == "Raspbian (Legacy)" ]] || [[ "$detected_distro" == "Debian" ]] || [[ "$detected_distro" == "DietPi" ]]
+        # TODO add armbian based on debian
         echo true
     else
         echo false
@@ -142,7 +218,7 @@ get_string_length() {
 
 _get_service_enablement() {
     local service="$1"
-    local option="${2:+$2 }" # optional, dont't quote in 'systemctl' call!
+    local option="${2:+$2 }" # optional, don't quote in 'systemctl' call!
 
     if [[ -z "${service}" ]]; then
         exit_on_error "ERROR: at least one parameter value is missing!"
@@ -171,6 +247,16 @@ is_dhcpcd_enabled() {
 
 is_NetworkManager_enabled() {
     echo $(is_service_enabled "NetworkManager.service")
+}
+
+disable_service() {
+    local service_name="$1"
+    if is_service_enabled "$service_name"; then
+        print_lc " Disable $service_name"
+        sudo systemctl disable "$service_name"
+    else
+        log "  $service_name is not enabled, skipping disable."
+    fi
 }
 
 # create flag file if files does no exist (*.remove) or copy present conf to backup file (*.orig)

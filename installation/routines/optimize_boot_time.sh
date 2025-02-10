@@ -9,21 +9,45 @@ OPTIMIZE_DHCP_CONF_HEADER="## Jukebox DHCP Config"
 OPTIMIZE_BOOT_CONF_HEADER="## Jukebox Boot Config"
 
 _optimize_disable_irrelevant_services() {
-  log "  Disable keyboard-setup.service"
-  sudo systemctl disable keyboard-setup.service
+    local detected_distro=$(get_distro)
+    local config=""
+    declare -a services_to_disable=()
 
-  log "  Disable triggerhappy.service"
-  sudo systemctl disable triggerhappy.service
-  sudo systemctl disable triggerhappy.socket
+    if [[ "${DISABLE_DISTRO_CONFIG}" == "true" ]]; then
+        if [[ "$detected_distro" == "Raspberry Pi OS" || "$detected_distro" == "Raspbian (Legacy)" ]]; then
+            config="raspi-config"
+        elif [[ "$detected_distro" == "DietPi" ]]; then
+            config="dietpi-config"
+        elif [[ "$detected_distro" == "Armbian" ]]; then
+            config="armbian-config"
+        fi
 
-  log "  Disable raspi-config.service"
-  sudo systemctl disable raspi-config.service
+        if [[ -n "$config" ]]; then
+            services_to_disable+=( "${config}.service" )
+        fi
+    fi
 
-  log "  Disable apt-daily.service & apt-daily-upgrade.service"
-  sudo systemctl disable apt-daily.service
-  sudo systemctl disable apt-daily-upgrade.service
-  sudo systemctl disable apt-daily.timer
-  sudo systemctl disable apt-daily-upgrade.timer
+    if [[ "${DISABLE_KEYBOARD_SETUP}" == "true" ]]; then
+        services_to_disable+=( "keyboard-setup.service" )
+    fi
+
+    if [[ "${DISABLE_TRIGGERHAPPY}" == "true" ]]; then
+        services_to_disable+=( "triggerhappy.service" "triggerhappy.socket" )
+    fi
+
+    if [[ "${DISABLE_APT_DAILY}" == "true" ]]; then
+        services_to_disable+=(
+            "apt-daily.service"
+            "apt-daily-upgrade.service"
+            "apt-daily.timer"
+            "apt-daily-upgrade.timer"
+        )
+    fi
+
+    for service in "${services_to_disable[@]}"; do
+        disable_service "$service"
+    done
+
 }
 
 _add_options_to_cmdline() {
@@ -113,7 +137,7 @@ EOF
 # TODO: Allow both Enable and Disable
 _optimize_handle_boot_logs() {
   if [ "$DISABLE_BOOT_LOGS_PRINT" = true ] ; then
-    log "  Disable boot logs"
+    print_lc "  Disable boot logs"
 
     _add_options_to_cmdline "${OPTIMIZE_BOOT_CMDLINE_OPTIONS}"
   fi
@@ -149,10 +173,30 @@ _optimize_check() {
     local configFile=$(get_boot_config_path)
 
 
-    verify_optional_service_enablement keyboard-setup.service disabled
-    verify_optional_service_enablement triggerhappy.service disabled
-    verify_optional_service_enablement triggerhappy.socket disabled
-    verify_optional_service_enablement raspi-config.service disabled
+    if [[ "${DISABLE_DISTRO_CONFIG}" == "true" ]]; then
+        if [[ "$detected_distro" == "Raspberry Pi OS" || "$detected_distro" == "Raspbian (Legacy)" ]]; then
+            config="raspi-config"
+        elif [[ "$detected_distro" == "DietPi" ]]; then
+            config="dietpi-config"
+        elif [[ "$detected_distro" == "Armbian" ]]; then
+            config="armbian-config"
+        fi
+
+        if [[ -n "$config" ]]; then
+            verify_optional_service_enablement "${config}.service" disabled
+        fi
+    fi
+
+    if [[ "${DISABLE_KEYBOARD_SETUP}" == "true" ]]; then
+        verify_optional_service_enablement keyboard-setup.service disabled
+    fi
+
+    if [[ "${DISABLE_TRIGGERHAPPY}" == "true" ]]; then
+        verify_optional_service_enablement triggerhappy.service disabled
+        verify_optional_service_enablement triggerhappy.socket disabled
+    fi
+
+    if [[ "${DISABLE_APT_DAILY}" == "true" ]]; then
     verify_optional_service_enablement apt-daily.service disabled
     verify_optional_service_enablement apt-daily-upgrade.service disabled
     verify_optional_service_enablement apt-daily.timer disabled

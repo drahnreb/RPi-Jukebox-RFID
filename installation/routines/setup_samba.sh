@@ -15,7 +15,7 @@ _samba_install_os_dependencies() {
 
 _samba_set_user() {
   print_lc "  Configure Samba"
-  local SMB_PASSWD="raspberry"
+  local SMB_PASSWD="$SAMBA_PASSWORD"
 
   # Samba has not been configured
   if grep -q "$SMB_CONF_HEADER" "$SMB_CONF"; then

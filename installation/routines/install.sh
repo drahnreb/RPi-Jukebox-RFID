@@ -3,9 +3,9 @@ install() {
   customize_options
   clear_c
   show_slow_hardware_message
-  set_raspi_config
   set_ssh_qos
-  update_raspi_os
+  set_distro_config
+  update_distro
   init_git_repo_from_tardir
   setup_jukebox_core
   setup_mpd
