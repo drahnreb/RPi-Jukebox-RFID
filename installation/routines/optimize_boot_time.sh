@@ -197,10 +197,11 @@ _optimize_check() {
     fi
 
     if [[ "${DISABLE_APT_DAILY}" == "true" ]]; then
-    verify_optional_service_enablement apt-daily.service disabled
-    verify_optional_service_enablement apt-daily-upgrade.service disabled
-    verify_optional_service_enablement apt-daily.timer disabled
-    verify_optional_service_enablement apt-daily-upgrade.timer disabled
+        verify_optional_service_enablement apt-daily.service disabled
+        verify_optional_service_enablement apt-daily-upgrade.service disabled
+        verify_optional_service_enablement apt-daily.timer disabled
+        verify_optional_service_enablement apt-daily-upgrade.timer disabled
+    fi
 
     if [ "$DISABLE_BLUETOOTH" = true ] ; then
         verify_optional_service_enablement hciuart.service disabled
