@@ -12,7 +12,7 @@ welcome() {
 #                                                       #
 #########################################################
 
-You are turning your Raspberry Pi into a Phoniebox.
+You are turning your Single Board Computer into a Phoniebox.
 Good choice!
 
 Depending on your hardware, this installation might last

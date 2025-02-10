@@ -8,7 +8,7 @@ Installation complete!
 
 ${FIN_MESSAGE}
 
-In order to start, you need to reboot your Raspberry Pi.
+In order to start, you need to reboot your SBC.
 Your SSH connection will disconnect.
 
 After the reboot, you can access the Web App in your browser at
