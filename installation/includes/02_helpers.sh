@@ -100,6 +100,7 @@ get_sbc_platform() {
     # Example for Odroid:
     # elif [ -f /proc/device-tree/model ] && grep -qi "odroid" /proc/device-tree/model; then
     #   sbc_platform="Odroid"
+    fi
 
     # Default if no match is found
     if [ -z "$sbc_platform" ]; then
