@@ -26,6 +26,7 @@ export ENABLE_WEBAPP_PROD_DOWNLOAD=true
 # y - setup webapp
 # n - build webapp (skipped due to forced webapp Download)
 # y - setup kiosk mode
+# 0 - rfid reader type (0 = no reader)
 # n - reboot
 
 "${LOCAL_INSTALL_SCRIPT_PATH}/install-jukebox.sh" <<< 'y
@@ -40,5 +41,6 @@ y
 y
 n
 y
+0
 n
 '
