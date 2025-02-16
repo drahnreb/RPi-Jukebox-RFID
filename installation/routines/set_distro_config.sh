@@ -50,18 +50,19 @@ _run_set_distro_config() {
   log "WiFi power management disabled temporarily (until reboot)."
 
   log "Creating systemd service file: ${service_file}"
-  sudo bash -c 'cat <<EOF > "${1}"
+  sudo bash -c "cat > ${service_file} << EOF
 [Unit]
 Description=Disable WiFi Power Management
 After=network.target
 
 [Service]
 Type=oneshot
-ExecStart=/bin/sh -c "${iw_command} dev ${interface_name} set power_save off"
+ExecStart=${iw_command} dev ${interface_name} set power_save off
+RemainAfterExit=yes
 
 [Install]
 WantedBy=multi-user.target
-EOF' -- "${service_file}"
+EOF"
 
   if [ $? -ne 0 ]; then
     exit_on_error "Error: Failed to create systemd service file."
